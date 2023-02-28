@@ -1,13 +1,13 @@
 import * as actionTypes from './constants';
 import { fromJS } from 'immutable';
-
+// 声明初始化 state
 const defaultState = fromJS({
-  hotList: [],
-  suggestList: [],
-  songsList: [],
+  hotList: [], // 热门关键词列表
+  suggestList: [],// 列表，包括歌单和歌手
+  songsList: [],// 歌曲列表
   enterLoading: false
 })
-
+// 定义 reducer 函数
 export default (state = defaultState, action) => {
   switch(action.type) {
     case actionTypes.SET_HOT_KEYWRODS:

@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 import style from '../../assets/global-style';
-
+// bottom解决Container盖住miniPlayer的问题
 export const Container = styled.div`
   position: fixed;
   top: 0;

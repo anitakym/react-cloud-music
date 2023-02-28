@@ -15,10 +15,12 @@ import { getSongDetail } from './../Player/store/actionCreators';
 
 
 const Search = (props) => {
+  // 组件内部
   const [query, setQuery] = useState('');
   const [show, setShow] = useState(false);
   const musicNoteRef = useRef();
 
+  // 首先在组件中取出 redux 中的数据
   const {
     hotList, 
     enterLoading, 
@@ -26,10 +28,8 @@ const Search = (props) => {
     songsCount, 
     songsList: immutableSongsList
   } = props;
-
   const suggestList = immutableSuggestList.toJS();
   const songsList = immutableSongsList.toJS();
-
   const {
     getHotKeyWordsDispatch,
     changeEnterLoadingDispatch,
@@ -37,13 +37,16 @@ const Search = (props) => {
     getSongDetailDispatch
   } = props;
 
+  // 当组件初次渲染时，我们发送 Ajax 请求拿到热门列表
   useEffect(() => {
     setShow(true);
+    // 用了redux缓存
     if(!hotList.size)
       getHotKeyWordsDispatch();
       // eslint-disable-next-line
   }, []);
 
+  // 当搜索框为空时,Search组件内
   const renderHotKey = () => {
     let list = hotList ? hotList.toJS(): [];
     return (
@@ -79,12 +82,24 @@ const Search = (props) => {
   //     </ul>
   //   )
   // }
-  const handleQuery = (q) => {
+  // 原因是Search 页面的handleQuery每次会因组件的重新渲染生成新的引用，导致SearchBox里的handleQueryDebounce也重新生成引用（debounce没有达到防抖的效果）。在两次输入时间差里handleQueryDebounce如果正好是两个不同的引用，两次输入都执行了父组件的handleQuery，然后newQuery发生改变，SearchBox里会检查到newQuery和query不同，再次触发setQuery，无限循环下去了。
+  // 把Search 页面的handleQuery用useCallback包起来可以解决
+  // 在函数组件中，由于memo是浅层比较props的，而函数执行会反复创建新的上下文，函数里面的变量、函数都会生成新的引用，往往需要配合useCallback或者useMemo使用，才能达到最优的效果
+  // 当组件的 props 和 state 没有变化时，将跳过这次渲染。而你在函数组件内频繁声明的事件处理函数，比如 handleSubmit ，在每次渲染时都会创建一个新函数。如果把这个函数随着 props 传递给作为子组件的纯组件，则会导致纯组件的优化无效，因为每次父组件重新渲染都会带着子组件一起重新渲染。这时就轮到useCallback 出马了，使用妥当的话，子组件不会盲目跟随父组件一起重新渲染，这样的话，反复渲染子组件的成本就节省下来了
+  const handleQuery = useCallback((q) => {
+    console.log('handleQuerySearch')
+    setQuery(q);
+    if (!q) return;
+    changeEnterLoadingDispatch(true);
+    getSuggestListDispatch(q);
+  }, []);
+  /* const handleQuery = (q) => {
+    console.log('handleQuerySearch1111')
     setQuery(q);
     if(!q) return;
     changeEnterLoadingDispatch(true);
     getSuggestListDispatch(q);
-  }
+  } */
 
   const renderSingers = () => {
     let singers = suggestList.artists;
@@ -138,7 +153,7 @@ const Search = (props) => {
     getSongDetailDispatch(id);
     musicNoteRef.current.startAnimation({x:e.nativeEvent.clientX, y:e.nativeEvent.clientY});
   }
-  
+  // 由于是传给子组件的方法，尽量用 useCallback 包裹，以使得在依赖未改变，始终给子组件传递的是相同的引用
   const searchBack = useCallback(() => {
     setShow(false);
   }, []);

@@ -26,20 +26,24 @@ const handleInsertSong = (state, song) => {
   currentIndex++;
   // 把歌放进去,放到当前播放曲目的下一个位置
   playList.splice(currentIndex, 0, song);
-  // 如果列表中已经存在要添加的歌
-  if(fpIndex > -1) {
+  // 如果列表中已经存在要添加的歌，暂且称它 oldSong
+  if (fpIndex > -1) {
+    // 如果 oldSong 的索引在目前播放歌曲的索引小，那么删除它，同时当前 index 要减一
     if(currentIndex > fpIndex) {
       playList.splice(fpIndex, 1);
       currentIndex--;
     } else {
+      // 否则直接删掉 oldSong
       playList.splice(fpIndex+1, 1);
     }
   }
-
+  // 同理，处理 sequenceList
   let sequenceIndex = findIndex(playList[currentIndex], sequenceList) + 1;
   let fsIndex = findIndex(song, sequenceList);
+  // 插入歌曲
   sequenceList.splice(sequenceIndex, 0, song);
-  if(fsIndex > -1) {
+  if (fsIndex > -1) {
+    // 跟上面类似的逻辑。如果在前面就删掉，index--; 如果在后面就直接删除
     if(sequenceIndex > fsIndex) {
       sequenceList.splice(fsIndex, 1);
       sequenceIndex--;

@@ -7,7 +7,7 @@ import { reducer as singerInfoReducer } from "../application/Singer/store/index"
 import { reducer as playerReducer } from "../application/Player/store/index";
 import { reducer as searchReducer } from "../application/Search/store/index";
 import { reducer as userReducer } from "../application/User/Login/store/index";
-
+// 注册到全局store
 export default combineReducers({
   recommend: recommendReducer,
   singers: singersReducer,
